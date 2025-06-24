@@ -1,1 +1,4 @@
 @import "tailwindcss";
+.btn {
+  @apply bg-blue-500 px-6 py-1 sm:py-1.5 rounded text-white flex items-center justify-center cursor-pointer hover:bg-blue-400;
+}
