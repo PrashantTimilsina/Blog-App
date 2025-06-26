@@ -1,33 +1,41 @@
-import React from "react";
-import blog from "@/db/blogData";
+"use client";
+
 import Image from "next/image";
-function BlogCart() {
+import { useData } from "@/context/Context";
+
+function BlogCart({ blog }) {
+  const { active } = useData();
+
+  const filteredBlog =
+    active === "All" ? blog : blog.filter((data) => data.category === active);
+  console.log(filteredBlog);
+
   return (
-    <div className="grid sm:grid-cols-2  sm:mt-2  p-3 sm:gap-5 mx-auto grid-cols-1 mt-4 gap-5 lg:grid-cols-3 lg:container">
-      {blog.map((data, index) => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 p-3 mt-4 mx-auto max-w-[1200px]">
+      {filteredBlog.map((data, index) => (
         <div
           key={index}
-          className="border-gray-700 border p-2 rounded sm:w-96 cursor-pointer h-auto"
+          className="border border-gray-700 p-2 rounded w-full h-auto cursor-pointer"
         >
-          <div className="relative sm:h-44 w-full h-36 ">
+          <div className="relative w-full h-36 sm:h-44">
             <Image
               src={data.coverImage}
               alt="Blog image"
               fill
               className="object-cover rounded"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             />
           </div>
-          <h1 className="sm:text-xl sm:mt-5 font-semibold mt-1">
+          <h1 className="text-lg sm:text-xl font-semibold mt-2 sm:mt-5">
             {data.title}
           </h1>
-          <br />
-          <p className="sm:text-[1rem] text-xs ">
+          <p className="text-xs sm:text-sm mt-1">
             {data.content.split(".")[0]}{" "}
             <span className="text-black font-semibold">see more...</span>
           </p>
-          <p className="sm:mt-5 flex items-center gap-3 text-[0.8rem] font-semibold mt-3">
+          <p className="mt-3 sm:mt-5 text-sm font-semibold flex items-center gap-3">
             Category:{" "}
-            <span className="bg-black text-white px-6 py-1 rounded ">
+            <span className="bg-black text-white px-4 py-1 rounded">
               {data.category}
             </span>
           </p>

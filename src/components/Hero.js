@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useData } from "@/context/Context";
 
 const data = [
   { title: "All" },
@@ -9,7 +9,9 @@ const data = [
   { title: "Health" },
 ];
 function Hero() {
-  const [active, setActive] = useState("All");
+  // const [active, setActive] = useState("All");
+  const { active, setActive } = useData();
+
   return (
     <div className="   items-center flex justify-center font-semibold flex-col  mt-24  ">
       <h1 className="text-center sm:text-6xl text-4xl">
@@ -38,7 +40,10 @@ function Hero() {
             className={`border rounded-full sm:px-5 sm:py-1.5 cursor-pointer px-2 py-1 hover:bg-blue-500 hover:text-white ${
               active === item.title ? "bg-blue-800 text-white" : ""
             }`}
-            onClick={() => setActive(item.title)}
+            onClick={() => {
+              console.log(active);
+              setActive(item.title);
+            }}
           >
             {item.title}
           </button>
