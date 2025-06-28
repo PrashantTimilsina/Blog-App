@@ -4,8 +4,9 @@ import { createContext, useContext, useState } from "react";
 const UserContext = createContext();
 function UserProvider({ children }) {
   const [active, setActive] = useState("All");
+  const [text, setText] = useState("");
   return (
-    <UserContext.Provider value={{ active, setActive }}>
+    <UserContext.Provider value={{ active, setActive, text, setText }}>
       {children}
     </UserContext.Provider>
   );

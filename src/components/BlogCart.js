@@ -2,12 +2,17 @@
 
 import Image from "next/image";
 import { useData } from "@/context/Context";
+import { useRouter } from "next/navigation";
 
 function BlogCart({ blog }) {
-  const { active } = useData();
+  const router = useRouter();
+  const { active, text } = useData();
 
-  const filteredBlog =
-    active === "All" ? blog : blog.filter((data) => data.category === active);
+  const filteredBlog = blog.filter((data) => {
+    const matchesCategory = active === "All" || data.category === active;
+    const matchesSearch = data.title.toLowerCase().includes(text.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
   console.log(filteredBlog);
 
   return (
@@ -16,6 +21,7 @@ function BlogCart({ blog }) {
         <div
           key={index}
           className="border border-gray-700 p-2 rounded w-full h-auto cursor-pointer"
+          onClick={() => router.push(`/posts/${data._id}`)}
         >
           <div className="relative w-full h-36 sm:h-44">
             <Image

@@ -9,11 +9,12 @@ const data = [
   { title: "Health" },
 ];
 function Hero() {
-  // const [active, setActive] = useState("All");
+  const { text, setText } = useData();
+
   const { active, setActive } = useData();
 
   return (
-    <div className="   items-center flex justify-center font-semibold flex-col  mt-24  ">
+    <div className="items-center flex justify-center font-semibold flex-col  mt-24">
       <h1 className="text-center sm:text-6xl text-4xl">
         Your Own <span className="text-blue-600 font-bold">Blogging</span>
         <br />
@@ -27,11 +28,13 @@ function Hero() {
         <input
           type="text"
           placeholder="Find blogs..."
-          className="w-auto sm:w-80 p-2 border outline-none rounded"
+          className="w-[80vw] sm:w-96 p-2 border outline-none rounded"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
         />
-        <button className="flex items-center justify-center px-6 sm:px-9 py-2 rounded bg-blue-600 text-white cursor-pointer">
+        {/* <button className="flex items-center justify-center px-6 sm:px-9 py-2 rounded bg-blue-600 text-white cursor-pointer">
           Search
-        </button>
+        </button> */}
       </div>
       <div className="mt-16 flex sm:gap-12 gap-4 relative">
         {data.map((item, index) => (

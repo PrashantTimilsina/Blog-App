@@ -1,9 +1,12 @@
 "use client";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+
 import { useEffect, useRef, useState } from "react";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { IoClose } from "react-icons/io5";
 function Navbar() {
+  const router = useRouter();
   const [show, setShow] = useState(false);
   const [color, setColor] = useState(false);
   useEffect(() => {
@@ -34,8 +37,11 @@ function Navbar() {
           color ? "bg-gray-200" : ""
         }`}
       >
-        <div className="flex items-center gap-2 lg:ml-20 ml-10">
-          <div className="w-10 h-10 relative">
+        <div
+          className="flex items-center gap-2 lg:ml-20 ml-10 cursor-pointer"
+          onClick={() => router.push("/")}
+        >
+          <div className="w-10 h-10 relative ">
             <Image
               src="/blog.png"
               alt="Blog icon"
@@ -46,9 +52,15 @@ function Navbar() {
           <h1>Quick Blog</h1>
         </div>
         <div className="mr-6 flex justify-between gap-9">
-          <button className="btn">Home</button>
-          <button className="btn">Login</button>
-          <button className="btn">Signup</button>
+          <button className="btn" onClick={() => router.push("/")}>
+            Home
+          </button>
+          <button className="btn" onClick={() => router.push("/login")}>
+            Login
+          </button>
+          <button className="btn" onClick={() => router.push("/signup")}>
+            Signup
+          </button>
         </div>
       </div>
       {/*mobile nav*/}
@@ -78,10 +90,22 @@ function Navbar() {
           <button className="btn mt-14 w-44" onClick={() => setShow(false)}>
             Home
           </button>
-          <button className="btn  w-44" onClick={() => setShow(false)}>
+          <button
+            className="btn  w-44"
+            onClick={() => {
+              router.push("/signup");
+              setShow(false);
+            }}
+          >
             Signup
           </button>
-          <button className="btn w-44" onClick={() => setShow(false)}>
+          <button
+            className="btn w-44"
+            onClick={() => {
+              router.push("/login");
+              setShow(false);
+            }}
+          >
             Login
           </button>
         </div>
