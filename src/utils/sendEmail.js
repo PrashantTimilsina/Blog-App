@@ -8,7 +8,11 @@ const mailjetClient = Mailjet.apiConnect(
 export async function sendEmail(email, name, token, emailType) {
   try {
     const subject = `Welcome to Our Blog App, ${name}!`;
-    const textPart = `Hi ${name},\n\nThank you for signing up to our Blog app. We're glad to have you!\n\nVisit this link to verify your email: ${process.env.DOMAIN}/verifyemail?token=${token}`;
+    const textPart = `Hi ${name},\n\nThank you for signing up to our Blog app. We're glad to have you!\n\nVisit this link to verify your email: ${
+      process.env.DOMAIN
+    }/${
+      emailType === "VERIFY" ? "verifyemail" : "resetpassword"
+    }?token=${token}`;
 
     const htmlPart = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; background-color: #f9f9f9; padding: 20px; border-radius: 8px; color: #333;">
