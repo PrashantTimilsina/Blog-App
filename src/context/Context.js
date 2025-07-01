@@ -5,8 +5,22 @@ const UserContext = createContext();
 function UserProvider({ children }) {
   const [active, setActive] = useState("All");
   const [text, setText] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [profileData, setProfileData] = useState(null);
+
   return (
-    <UserContext.Provider value={{ active, setActive, text, setText }}>
+    <UserContext.Provider
+      value={{
+        active,
+        setActive,
+        text,
+        setText,
+        isLoggedIn,
+        setIsLoggedIn,
+        profileData,
+        setProfileData,
+      }}
+    >
       {children}
     </UserContext.Provider>
   );

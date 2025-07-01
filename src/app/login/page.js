@@ -1,4 +1,5 @@
 "use client";
+import { useData } from "@/context/Context";
 import { errorMsg, successMsg } from "@/utils/toast";
 import axios from "axios";
 
@@ -7,6 +8,7 @@ import React, { useEffect, useState } from "react";
 
 function Login() {
   const router = useRouter();
+  const { setIsLoggedIn } = useData();
   const [user, setUser] = useState({
     password: "",
     email: "",
@@ -26,6 +28,7 @@ function Login() {
 
       setUser({ email: "", password: "" });
       successMsg(data.message, 1500);
+      setIsLoggedIn(true);
       router.push("/");
     } catch (error) {
       errorMsg(error.response.data.message, 1500);

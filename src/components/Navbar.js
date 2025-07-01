@@ -1,4 +1,6 @@
 "use client";
+import { useData } from "@/context/Context";
+import axios from "axios";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -7,8 +9,27 @@ import { GiHamburgerMenu } from "react-icons/gi";
 import { IoClose } from "react-icons/io5";
 function Navbar() {
   const router = useRouter();
+  const { isLoggedIn, setIsLoggedIn, setProfileData, profileData } = useData();
   const [show, setShow] = useState(false);
   const [color, setColor] = useState(false);
+  useEffect(() => {
+    async function checkAuth() {
+      const res = await axios.get("/api/users/checkauth");
+      const data = res.data;
+      if (data.authenticated) {
+        setIsLoggedIn(true);
+        const res = await axios.get("/api/users/me", { withCredentials: true });
+        const data = res.data;
+        if (data) {
+          setProfileData(data);
+        }
+      } else {
+        setIsLoggedIn(false);
+      }
+    }
+    checkAuth();
+  }, [isLoggedIn]);
+
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 0) {
@@ -55,12 +76,36 @@ function Navbar() {
           <button className="btn" onClick={() => router.push("/")}>
             Home
           </button>
-          <button className="btn" onClick={() => router.push("/login")}>
-            Login
-          </button>
-          <button className="btn" onClick={() => router.push("/signup")}>
-            Signup
-          </button>
+          {isLoggedIn ? (
+            <button className="btn">Create blog</button>
+          ) : (
+            <button className="btn" onClick={() => router.push("/login")}>
+              Login
+            </button>
+          )}
+          {isLoggedIn ? (
+            <button
+              className="btn flex gap-3"
+              onClick={() => router.push("/profile")}
+            >
+              {profileData?.user?.name}
+              <div className="relative h-6 w-6 rounded-full overflow-hidden">
+                <Image
+                  src={
+                    profileData?.user?.image ||
+                    "https://img.freepik.com/premium-vector/avatar-profile-icon-flat-style-male-user-profile-vector-illustration-isolated-background-man-profile-sign-business-concept_157943-38764.jpg?semt=ais_hybrid"
+                  }
+                  alt="profile pic"
+                  className="object-cover"
+                  fill
+                />
+              </div>
+            </button>
+          ) : (
+            <button className="btn" onClick={() => router.push("/signup")}>
+              Signup
+            </button>
+          )}
         </div>
       </div>
       {/*mobile nav*/}
@@ -69,7 +114,10 @@ function Navbar() {
           color ? "bg-gray-200 text-black w-full" : ""
         }`}
       >
-        <div className="flex items-center gap-2 lg:ml-20 ml-8">
+        <div
+          className="flex items-center gap-2 lg:ml-20 ml-8"
+          onClick={() => router.push("/")}
+        >
           <div className="w-8 h-8 relative ">
             <Image
               src="/blog.png"
@@ -87,7 +135,13 @@ function Navbar() {
           } transition-all duration-150 `}
           ref={mobileRef}
         >
-          <button className="btn mt-14 w-44" onClick={() => setShow(false)}>
+          <button
+            className="btn mt-14 w-44"
+            onClick={() => {
+              router.push("/");
+              setShow(false);
+            }}
+          >
             Home
           </button>
           <button
@@ -99,15 +153,38 @@ function Navbar() {
           >
             Signup
           </button>
-          <button
-            className="btn w-44"
-            onClick={() => {
-              router.push("/login");
-              setShow(false);
-            }}
-          >
-            Login
-          </button>
+          {isLoggedIn ? (
+            <button
+              className="btn w-44 flex gap-4"
+              onClick={() => {
+                router.push("/profile");
+                setShow(false);
+              }}
+            >
+              {profileData?.user?.name}
+              <div className="relative h-7 w-7 rounded-full overflow-hidden">
+                <Image
+                  src={
+                    profileData?.user?.image ||
+                    "https://img.freepik.com/premium-vector/avatar-profile-icon-flat-style-male-user-profile-vector-illustration-isolated-background-man-profile-sign-business-concept_157943-38764.jpg?semt=ais_hybrid"
+                  }
+                  alt="profile pic"
+                  className="object-cover"
+                  fill
+                />
+              </div>
+            </button>
+          ) : (
+            <button
+              className="btn w-44"
+              onClick={() => {
+                router.push("/login");
+                setShow(false);
+              }}
+            >
+              Login
+            </button>
+          )}
         </div>
 
         <div className="relative my-auto mr-4 ">
