@@ -8,12 +8,15 @@ import React, { useState } from "react";
 
 function Profile() {
   const router = useRouter();
-  const { profileData, setIsLoggedIn } = useData();
 
+  const { profileData, setIsLoggedIn, setProfileData } = useData();
+  const [update, setUpdate] = useState(false);
+  const [name, setName] = useState(profileData?.user?.name || "");
   const handleLogout = async (e) => {
     try {
       const res = await axios.get("/api/users/logout");
       const data = res.data;
+
       successMsg(data.message, 1500);
       setIsLoggedIn(false);
       router.push("/");
@@ -21,6 +24,28 @@ function Profile() {
       errorMsg(error.response.data.message, 1500);
     }
   };
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.post(
+        "/api/users/updateme",
+        { name },
+        { withCredentials: true }
+      );
+      const data = res.data;
+      const response = await axios.get("/api/users/me", {
+        withCredentials: true,
+      });
+      const newdata = response.data;
+      setProfileData(newdata);
+      successMsg(data.message, 1500);
+
+      setUpdate(false);
+    } catch (error) {
+      errorMsg(error.response.data.message, 1500);
+    }
+  };
+
   return (
     <>
       <h1 className="text-center text-3xl font-semibold sm:mt-6 mt-14">
@@ -43,15 +68,38 @@ function Profile() {
             <button className=" flex items-center justify-center px-6 py-2 bg-slate-600 text-white rounded cursor-pointer">
               Change photo
             </button>
-            <button className=" flex items-center justify-center px-6 py-2 bg-slate-600 text-white rounded cursor-pointer">
-              Update profile
-            </button>
+            {update ? (
+              <button
+                className=" flex items-center justify-center px-6 py-2 bg-slate-600 text-white rounded cursor-pointer"
+                onClick={handleUpdate}
+              >
+                Update
+              </button>
+            ) : (
+              <button
+                className=" flex items-center justify-center px-6 py-2 bg-slate-600 text-white rounded cursor-pointer"
+                onClick={() => setUpdate(true)}
+              >
+                Update profile
+              </button>
+            )}
           </div>
         </div>
         <div className=" space-y-5  text-center sm:text-left">
-          <h1 className="sm:text-2xl text-xl">
-            Name: {profileData?.user?.name}
-          </h1>
+          {update ? (
+            <input
+              type="text"
+              placeholder="Enter new name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="p-2 outline-none bg-gray-400 rounded text-xl"
+              spellCheck={false}
+            />
+          ) : (
+            <h1 className="sm:text-2xl text-xl">
+              Name: {profileData?.user?.name}
+            </h1>
+          )}
           <h1 className="sm:text-2xl text-xl">
             Email: {profileData?.user?.email}
           </h1>

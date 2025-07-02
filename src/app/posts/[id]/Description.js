@@ -7,6 +7,8 @@ import { AiFillLike } from "react-icons/ai";
 import { CiShare2 } from "react-icons/ci";
 import { IoClose } from "react-icons/io5";
 import { IoSend } from "react-icons/io5";
+import axios from "axios";
+
 function Description({ post }) {
   const commentRef = useRef(null);
   const likeRef = useRef(null);
@@ -15,6 +17,7 @@ function Description({ post }) {
   const [copied, setCopied] = useState(false);
   const [show, setShow] = useState(false);
   const [showComment, setShowComment] = useState(false);
+  const [likes, setLikes] = useState(post.likes.length);
   const handleShare = () => {
     if (navigator.clipboard) {
       navigator.clipboard
@@ -30,7 +33,7 @@ function Description({ post }) {
   };
   useEffect(() => {
     const handleClose = (e) => {
-      if (!likeRef.current.contains(e.target)) {
+      if (!likeRef?.current?.contains(e.target)) {
         setShow(false);
       } else {
         setShow(true);
@@ -47,6 +50,15 @@ function Description({ post }) {
       commentRef.current?.scrollIntoView({ behavior: "smooth" });
     }
   }, [showComment]);
+  const handleLike = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.post(`/api/posts/like/${post._id}`);
+      setLikes((likes) => likes + 1);
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
   return (
     <>
       <div className="mt-8 flex flex-col gap-4 text-gray-700 p-2">
@@ -86,7 +98,7 @@ function Description({ post }) {
             </div>
           </div>
           <div>
-            {/*commets*/}
+            {/*comments*/}
             <button
               className="flex items-center justify-center gap-1 border border-gray-400 p-2 rounded cursor-pointer"
               onClick={() => {
@@ -98,7 +110,7 @@ function Description({ post }) {
             </button>
           </div>
           <div>
-            {/*commets*/}
+            {/*comments*/}
             <button
               className="flex items-center justify-center gap-1 border border-gray-400 p-2 rounded cursor-pointer"
               onClick={handleShare}
@@ -119,7 +131,7 @@ function Description({ post }) {
           ))}
 
           <h3 className="px-2 cursor-pointer" onClick={() => setShow(true)}>
-            Liked by {post.likes.length} people
+            Liked by {likes} people
           </h3>
           {show && (
             <div
