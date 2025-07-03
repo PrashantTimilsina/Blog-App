@@ -8,6 +8,7 @@ import { CiShare2 } from "react-icons/ci";
 import { IoClose } from "react-icons/io5";
 import { IoSend } from "react-icons/io5";
 import axios from "axios";
+import { useData } from "@/context/Context";
 
 function Description({ post }) {
   const commentRef = useRef(null);
@@ -19,6 +20,14 @@ function Description({ post }) {
   const [show, setShow] = useState(false);
   const [showComment, setShowComment] = useState(false);
   const [likes, setLikes] = useState(post?.likes?.length);
+  const { profileData } = useData();
+  const userId = profileData?.user?._id;
+  useEffect(() => {
+    const liked = post?.likes?.some((data) => data === userId);
+    if (liked) {
+      setClicked(true);
+    }
+  }, [post.likes, userId]);
   const handleShare = () => {
     if (navigator.clipboard) {
       navigator.clipboard
@@ -67,6 +76,19 @@ function Description({ post }) {
       console.error("Error liking post:", error);
     }
   };
+  useEffect(() => {
+    async function isLiked() {
+      const res = await axios.get(`/api/posts/likedstate/${post._id}`, {
+        withCredentials: true,
+      });
+      const data = res.data;
+      console.log(data);
+      if (data.liked) {
+        setClicked(true);
+      }
+    }
+    isLiked();
+  }, [post._id]);
   return (
     <>
       <div className="mt-8 flex flex-col gap-4 text-gray-700 p-2">
