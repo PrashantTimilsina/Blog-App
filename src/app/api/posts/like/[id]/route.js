@@ -6,10 +6,7 @@ export async function POST(request, { params }) {
   try {
     const userId = await getToken(request);
     if (!userId) {
-      return NextResponse.json(
-        { message: "Please login again" },
-        { status: 401 }
-      );
+      return NextResponse.json({ message: "Please login " }, { status: 401 });
     }
     const postId = params.id;
     const post = await Post.findById(postId);
@@ -23,7 +20,14 @@ export async function POST(request, { params }) {
       post.likes.push(userId);
     }
     await post.save();
-    return NextResponse.json({ message: "Likes updated" }, { status: 200 });
+    return NextResponse.json(
+      {
+        message: "Likes updated",
+        likesCount: post.likes.length,
+        isLiked: post.likes.includes(userId), // this tells frontend the actual state
+      },
+      { status: 200 }
+    );
   } catch (error) {
     return NextResponse.json({ message: error.message }, { status: 500 });
   }

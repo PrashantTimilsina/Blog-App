@@ -27,7 +27,7 @@ function ChangePassword() {
   return (
     <div className="h-screen flex flex-col items-center justify-start mt-10 p-2">
       <h1 className="sm:text-2xl text-xl">Change password</h1>
-      <form className="grid grid-cols-2 sm:gap-6 mt-8 sm:text-xl gap-5">
+      <form className="grid grid-cols-2 sm:gap-10 mt-10 sm:text-xl gap-5">
         <label htmlFor="current">Current password:</label>
         <input
           type="password"

@@ -14,10 +14,11 @@ function Description({ post }) {
   const likeRef = useRef(null);
   console.log(post);
   const [clicked, setClicked] = useState(false);
+
   const [copied, setCopied] = useState(false);
   const [show, setShow] = useState(false);
   const [showComment, setShowComment] = useState(false);
-  const [likes, setLikes] = useState(post.likes.length);
+  const [likes, setLikes] = useState(post?.likes?.length);
   const handleShare = () => {
     if (navigator.clipboard) {
       navigator.clipboard
@@ -31,6 +32,7 @@ function Description({ post }) {
       alert("Clipboard not supported");
     }
   };
+
   useEffect(() => {
     const handleClose = (e) => {
       if (!likeRef?.current?.contains(e.target)) {
@@ -50,13 +52,19 @@ function Description({ post }) {
       commentRef.current?.scrollIntoView({ behavior: "smooth" });
     }
   }, [showComment]);
-  const handleLike = async (e) => {
-    e.preventDefault();
+
+  const handleLike = async () => {
     try {
       const res = await axios.post(`/api/posts/like/${post._id}`);
-      setLikes((likes) => likes + 1);
+      if (res.status === 200) {
+        const { likesCount, isLiked } = res.data;
+
+        setClicked(isLiked);
+
+        setLikes(likesCount);
+      }
     } catch (error) {
-      console.log(error.message);
+      console.error("Error liking post:", error);
     }
   };
   return (
@@ -89,7 +97,7 @@ function Description({ post }) {
           <div>
             <div
               className="flex gap-1 items-center   p-0.5 rounded cursor-pointer justify-center"
-              onClick={() => setClicked((clicked) => !clicked)}
+              onClick={handleLike}
             >
               <button className="cursor-pointer flex items-center justify-center gap-1 border border-gray-400 p-2 px-4 ">
                 {clicked ? <AiFillLike /> : <BiLike />}
