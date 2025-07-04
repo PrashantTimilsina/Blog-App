@@ -13,8 +13,9 @@ import { useData } from "@/context/Context";
 function Description({ post }) {
   const commentRef = useRef(null);
   const likeRef = useRef(null);
-  console.log(post);
+
   const [clicked, setClicked] = useState(false);
+  const [text, setText] = useState("");
 
   const [copied, setCopied] = useState(false);
   const [show, setShow] = useState(false);
@@ -89,6 +90,26 @@ function Description({ post }) {
     }
     isLiked();
   }, [post._id]);
+  const handleAddComment = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.post(
+        `/api/posts/addcomment/${post._id}`,
+        { text },
+        {
+          withCredentials: true,
+        }
+      );
+      const data = res.data;
+      setText("");
+    } catch (error) {}
+  };
+  const handleKeyDownComment = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleAddComment(e);
+    }
+  };
   return (
     <>
       <div className="mt-8 flex flex-col gap-4 text-gray-700 p-2">
@@ -201,8 +222,14 @@ function Description({ post }) {
                   type="text"
                   placeholder="Write a comment..."
                   className="w-72 px-2 py-1 outline-none text-black placeholder:text-black"
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  onKeyDown={handleKeyDownComment}
                 />
-                <IoSend className="text-xl cursor-pointer" />
+                <IoSend
+                  className="text-xl cursor-pointer"
+                  onClick={handleAddComment}
+                />
               </div>
               {post.comments.map((data, index) => (
                 <div key={index}>
