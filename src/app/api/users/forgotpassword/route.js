@@ -2,6 +2,8 @@ import User from "@/models/userModel";
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { sendEmail } from "@/utils/sendEmail";
+import connect from "@/db/db";
+connect();
 export async function POST(request) {
   try {
     const { email } = await request.json();

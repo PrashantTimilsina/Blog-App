@@ -7,12 +7,17 @@ import { AiFillLike } from "react-icons/ai";
 import { CiShare2 } from "react-icons/ci";
 import { IoClose } from "react-icons/io5";
 import { IoSend } from "react-icons/io5";
+import { CiBookmark } from "react-icons/ci";
+import { FaBookmark } from "react-icons/fa";
 import axios from "axios";
 import { useData } from "@/context/Context";
+import { errorMsg, successMsg } from "@/utils/toast";
 
 function Description({ post }) {
   const commentRef = useRef(null);
   const likeRef = useRef(null);
+  const [comments, setComments] = useState(post?.comments || []);
+  const [bookmark, setBookMark] = useState(false);
 
   const [clicked, setClicked] = useState(false);
   const [text, setText] = useState("");
@@ -20,6 +25,9 @@ function Description({ post }) {
   const [copied, setCopied] = useState(false);
   const [show, setShow] = useState(false);
   const [showComment, setShowComment] = useState(false);
+  const [editingText, setEditingText] = useState(null);
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [newText, setNewText] = useState("");
   const [likes, setLikes] = useState(post?.likes?.length);
   const { profileData } = useData();
   const userId = profileData?.user?._id;
@@ -65,7 +73,7 @@ function Description({ post }) {
 
   const handleLike = async () => {
     try {
-      const res = await axios.post(`/api/posts/like/${post._id}`);
+      const res = await axios.post(`/api/posts/like/${post?._id}`);
       if (res.status === 200) {
         const { likesCount, isLiked } = res.data;
 
@@ -78,8 +86,16 @@ function Description({ post }) {
     }
   };
   useEffect(() => {
+    if (profileData?.user?.bookmarks && post?._id) {
+      const isBookmarked = profileData.user.bookmarks.some(
+        (postObj) => postObj._id.toString() === post._id.toString()
+      );
+      setBookMark(isBookmarked);
+    }
+  }, [profileData, post]);
+  useEffect(() => {
     async function isLiked() {
-      const res = await axios.get(`/api/posts/likedstate/${post._id}`, {
+      const res = await axios.get(`/api/posts/likedstate/${post?._id}`, {
         withCredentials: true,
       });
       const data = res.data;
@@ -101,6 +117,15 @@ function Description({ post }) {
         }
       );
       const data = res.data;
+      const newComment = {
+        user: {
+          name: profileData.user.name,
+          image: profileData.user.image,
+        },
+        text,
+      };
+      const addComment = [newComment, ...comments];
+      setComments(addComment);
       setText("");
     } catch (error) {}
   };
@@ -110,18 +135,78 @@ function Description({ post }) {
       handleAddComment(e);
     }
   };
+  const handleEditComment = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.post(
+        `/api/posts/editcomment/${post?._id}`,
+        { oldComment: editingText, newComment: newText },
+        { withCredentials: true }
+      );
+      const data = res.data;
+      const updatedComments = comments.map((comment, index) => {
+        if (index === editingIndex) {
+          return {
+            ...comment,
+            text: newText,
+          };
+        }
+        return comment;
+      });
+
+      setComments(updatedComments);
+
+      setEditingIndex(null);
+      setEditingText(null);
+      setNewText("");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const handleBookMark = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.post(`/api/users/bookmark/${post._id}`, "", {
+        withCredentials: true,
+      });
+
+      const data = res?.data;
+      console.log(data);
+      successMsg(data.message, 1500);
+      if (data.message === "Bookmarked removed") {
+        setBookMark(false);
+      } else {
+        setBookMark(true);
+      }
+    } catch (error) {
+      errorMsg(error.response.data.message, 1500);
+    }
+  };
   return (
     <>
       <div className="mt-8 flex flex-col gap-4 text-gray-700 p-2">
         <div className="text-center sm:text-3xl font-semibold text-xl">
           <h1 className="border-b-3 border-gray-600 inline-block pb-2 ">
-            {post.title}
+            {post?.title}
           </h1>
+          <h2 className="flex justify-end p-2 mr-6  ">
+            {bookmark ? (
+              <FaBookmark
+                className="cursor-pointer font-bold sm:text-4xl text-2xl"
+                onClick={handleBookMark}
+              />
+            ) : (
+              <CiBookmark
+                className="cursor-pointer font-bold sm:text-4xl text-2xl"
+                onClick={handleBookMark}
+              />
+            )}
+          </h2>
         </div>
 
         <div className="relative w-full sm:h-80 container mx-auto h-56">
           <Image
-            src={post.coverImage}
+            src={post?.coverImage}
             fill
             alt="Cover Image "
             className="object-cover"
@@ -129,11 +214,11 @@ function Description({ post }) {
         </div>
         <div className="container mx-auto  text-gray-900">
           <p className="sm:text-2xl leading-9 text-justify text-xl sm:p-0 p-2">
-            {post.content}
+            {post?.content}
           </p>
         </div>
         <div className=" text-xl flex justify-end px-4 text-gray-800 italic">
-          Written By: <span className=" text-black">{post.author.name}</span>
+          Written By: <span className=" text-black">{post?.author?.name}</span>
         </div>
         {/*LIKES AND COMMENT SECTION*/}
         <div className="p-1 sm:ml-16 sm:text-xl flex  items-center sm:gap-10 mx-auto gap-5">
@@ -177,7 +262,7 @@ function Description({ post }) {
               className="relative h-8 w-8 rounded-full overflow-hidden "
               key={index}
             >
-              <Image src={data.image} alt="Liked person image" fill />
+              <Image src={data?.image} alt="Liked person image" fill />
             </div>
           ))}
 
@@ -190,7 +275,7 @@ function Description({ post }) {
               ref={likeRef}
             >
               <div className="flex flex-col gap-5 ">
-                {post.likes.map((data, index) => (
+                {post?.likes?.map((data, index) => (
                   <div key={index} className="flex gap-3 items-center">
                     <div className="relative overflow-hidden h-8 w-8 rounded-full">
                       <Image
@@ -231,7 +316,7 @@ function Description({ post }) {
                   onClick={handleAddComment}
                 />
               </div>
-              {post.comments.map((data, index) => (
+              {comments.map((data, index) => (
                 <div key={index}>
                   <div className="flex items-center gap-4">
                     <div className="relative h-8 w-8 rounded-full overflow-hidden ">
@@ -244,7 +329,50 @@ function Description({ post }) {
                     </div>
                     <h3 className="text-xl">{data.user.name}</h3>
                   </div>
-                  <p className="ml-12">{data.text}</p>
+                  {editingIndex === index ? (
+                    <input
+                      type="text"
+                      onChange={(e) => setNewText(e.target.value)}
+                      value={newText}
+                      className="bg-gray-400 m-2 p-0.5 rounded ml-10"
+                      spellCheck={false}
+                    />
+                  ) : (
+                    <p className="ml-12">{data?.text}</p>
+                  )}
+                  {data?.user?.name === profileData?.user?.name && (
+                    <div className="flex gap-8 ml-12 text-black text-[1rem] mt-1">
+                      {editingIndex === index ? (
+                        <button
+                          className="cursor-pointer bg-gray-400 px-4 py-0.5 rounded"
+                          onClick={handleEditComment}
+                        >
+                          Submit
+                        </button>
+                      ) : (
+                        <button
+                          className="cursor-pointer bg-gray-400 px-4 py-0.5 rounded"
+                          onClick={() => {
+                            setEditingIndex(index);
+                            setEditingText(data?.text);
+                            setNewText(data?.text);
+                          }}
+                        >
+                          Edit
+                        </button>
+                      )}
+                      {editingIndex === index && (
+                        <button
+                          className="cursor-pointer bg-gray-400 px-4 py-0.5 rounded"
+                          onClick={() => {
+                            setEditingIndex(null);
+                          }}
+                        >
+                          Back
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

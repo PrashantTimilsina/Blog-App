@@ -1,7 +1,8 @@
+import connect from "@/db/db";
 import User from "@/models/userModel";
 import { getToken } from "@/utils/getToken";
 import { NextResponse } from "next/server";
-
+connect();
 export async function GET(request) {
   try {
     const userId = await getToken(request);
@@ -11,7 +12,9 @@ export async function GET(request) {
         { status: 401 }
       );
     }
-    const user = await User.findOne({ _id: userId }).select("-password -__v");
+    const user = await User.findOne({ _id: userId })
+      .select("-password -__v")
+      .populate("bookmarks");
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 400 });
     }

@@ -4,14 +4,28 @@ import { errorMsg, successMsg } from "@/utils/toast";
 import axios from "axios";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 function Profile() {
   const router = useRouter();
-
+  const [show, setShow] = useState(false);
   const { profileData, setIsLoggedIn, setProfileData } = useData();
   const [update, setUpdate] = useState(false);
   const [name, setName] = useState(profileData?.user?.name || "");
+  const profileRef = useRef(null);
+  useEffect(() => {
+    const handler = (e) => {
+      if (!profileRef?.current?.contains(e.target)) {
+        setShow(false);
+      } else {
+        setShow(true);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => {
+      document.removeEventListener("mousedown", handler);
+    };
+  });
   const handleLogout = async (e) => {
     try {
       const res = await axios.get("/api/users/logout");
@@ -45,13 +59,23 @@ function Profile() {
       errorMsg(error.response.data.message, 1500);
     }
   };
-
+  const handleDeleteUser = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.delete("/api/users/deleteuser", {
+        withCredentials: true,
+      });
+      setIsLoggedIn(false);
+      setProfileData(null);
+      router.push("/");
+    } catch (error) {}
+  };
   return (
     <>
-      <h1 className="text-center text-3xl font-semibold sm:mt-6 mt-14">
+      <h1 className="text-center text-3xl font-semibold sm:mt-6 mt-14 text-gray-600">
         Profile
       </h1>
-      <div className="grid sm:grid-cols-2 items-center h-96 p-2  gap-5 grid-cols-1 sm:mt-0 mt-10">
+      <div className="grid sm:grid-cols-2 items-center h-96 p-2  gap-5 grid-cols-1 sm:mt-0 mt-10 text-gray-800">
         <div>
           <div className="relative sm:h-56 sm:w-56 h-48 w-48 rounded-full overflow-hidden mx-auto shadow-lg shadow-black">
             <Image
@@ -116,6 +140,34 @@ function Profile() {
               onClick={handleLogout}
             >
               Logout
+            </button>
+            {show && (
+              <div
+                className="absolute  z-50 bg-slate-200  w-96 flex flex-col gap-5 sm:bottom-64 h-44 items-center justify-center rounded text-xl bottom-10"
+                ref={profileRef}
+              >
+                <h1>Are you sure?</h1>
+                <div className="flex gap-8">
+                  <button
+                    className="bg-red-500 text-white px-6 py-0.5 rounded cursor-pointer"
+                    onClick={handleDeleteUser}
+                  >
+                    Yes
+                  </button>
+                  <button
+                    className="bg-green-500 text-white px-6 py-0.5 rounded cursor-pointer"
+                    onClick={() => setShow(false)}
+                  >
+                    No
+                  </button>
+                </div>
+              </div>
+            )}
+            <button
+              className="sm:w-auto w-44 flex items-center justify-center px-8 py-2 bg-red-700 text-white rounded cursor-pointer"
+              onClick={() => setShow(true)}
+            >
+              Delete Account
             </button>
           </div>
         </div>

@@ -1,5 +1,6 @@
+import connect from "@/db/db";
 import { NextResponse } from "next/server";
-
+connect();
 export async function GET(request) {
   try {
     const response = NextResponse.json(

@@ -20,6 +20,7 @@ function Navbar() {
         setIsLoggedIn(true);
         const res = await axios.get("/api/users/me", { withCredentials: true });
         const data = res.data;
+        console.log(data);
         if (data) {
           setProfileData(data);
         }
@@ -77,12 +78,17 @@ function Navbar() {
             Home
           </button>
           {isLoggedIn ? (
-            <button className="btn">Create blog</button>
+            <button className="btn" onClick={() => router.push("/createblog")}>
+              Create blog
+            </button>
           ) : (
             <button className="btn" onClick={() => router.push("/login")}>
               Login
             </button>
           )}
+          <button className="btn" onClick={() => router.push("/bookmark")}>
+            Bookmarks
+          </button>
           {isLoggedIn ? (
             <button
               className="btn flex gap-3"
@@ -144,14 +150,35 @@ function Navbar() {
           >
             Home
           </button>
+          {isLoggedIn ? (
+            <button
+              className="btn w-44"
+              onClick={() => {
+                router.push("/createblog");
+                setShow(false);
+              }}
+            >
+              Create blog
+            </button>
+          ) : (
+            <button
+              className="btn  w-44"
+              onClick={() => {
+                router.push("/signup");
+                setShow(false);
+              }}
+            >
+              Signup
+            </button>
+          )}
           <button
-            className="btn  w-44"
+            className="btn w-44"
             onClick={() => {
-              router.push("/signup");
+              router.push("/bookmark");
               setShow(false);
             }}
           >
-            Signup
+            Bookmarks
           </button>
           {isLoggedIn ? (
             <button

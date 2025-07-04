@@ -17,6 +17,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Please provide your password"],
     },
+    bookmarks: [{ type: mongoose.Types.ObjectId, ref: "Post" }],
     image: String,
     role: { type: String, default: "user", enum: ["user", "admin"] },
     isVerified: { type: Boolean, default: false },

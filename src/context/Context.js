@@ -1,4 +1,5 @@
 "use client";
+import axios from "axios";
 import { createContext, useContext, useState } from "react";
 
 const UserContext = createContext();
@@ -7,7 +8,11 @@ function UserProvider({ children }) {
   const [text, setText] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [profileData, setProfileData] = useState(null);
-
+  const refetchProfile = async () => {
+    const res = await axios.get("/api/users/me", { withCredentials: true });
+    const data = res.data;
+    setProfileData(data);
+  };
   return (
     <UserContext.Provider
       value={{
@@ -19,6 +24,7 @@ function UserProvider({ children }) {
         setIsLoggedIn,
         profileData,
         setProfileData,
+        refetchProfile,
       }}
     >
       {children}

@@ -18,6 +18,7 @@ export default async function PostPage({ params }) {
   if (!post) {
     return <div>Post not found</div>;
   }
+  post.comments = post.comments.filter((comment) => comment.user !== null);
 
   const plainPost = JSON.parse(JSON.stringify(post)); // ✅ full safe serialization
 
