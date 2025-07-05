@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useData } from "@/context/Context";
 import { useRouter } from "next/navigation";
+import { CldImage } from "next-cloudinary";
 
 function BlogCart({ blog }) {
   const router = useRouter();
@@ -20,17 +21,27 @@ function BlogCart({ blog }) {
       {filteredBlog.map((data, index) => (
         <div
           key={index}
-          className="border border-gray-700 p-2 rounded w-full h-auto cursor-pointer"
+          className="border border-gray-200 p-2 rounded w-full h-auto cursor-pointer"
           onClick={() => router.push(`/posts/${data._id}`)}
         >
           <div className="relative w-full h-36 sm:h-44">
-            <Image
-              src={data.coverImage}
-              alt="Blog image"
-              fill
-              className="object-cover rounded"
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            />
+            {data.coverImage.startsWith("htt") ? (
+              <Image
+                src={data.coverImage}
+                alt="Blog image"
+                fill
+                className="object-cover rounded"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              />
+            ) : (
+              <CldImage
+                src={data.coverImage}
+                alt="Blog cover image"
+                className="h-full w-full object-cover  rounded"
+                width={100}
+                height={100}
+              />
+            )}
           </div>
           <h1 className="text-lg sm:text-xl font-semibold mt-2 sm:mt-5">
             {data.title}

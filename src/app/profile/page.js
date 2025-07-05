@@ -5,11 +5,15 @@ import axios from "axios";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
+import { CldImage, CldUploadWidget } from "next-cloudinary";
 
 function Profile() {
   const router = useRouter();
   const [show, setShow] = useState(false);
-  const { profileData, setIsLoggedIn, setProfileData } = useData();
+  const { profileData, setIsLoggedIn, setProfileData, refetchProfile } =
+    useData();
+  const [publicId, setPublicId] = useState(profileData?.user?.image || "");
+
   const [update, setUpdate] = useState(false);
   const [name, setName] = useState(profileData?.user?.name || "");
   const profileRef = useRef(null);
@@ -70,28 +74,70 @@ function Profile() {
       router.push("/");
     } catch (error) {}
   };
+  const handleImageUpload = async (imageId) => {
+    try {
+      const res = await axios.put(
+        "/api/users/profileimage",
+        { image: imageId },
+        { withCredentials: true }
+      );
+      const data = res.data;
+      console.log(publicId);
+      console.log(data);
+      successMsg(data.message, 1500);
+      refetchProfile();
+    } catch (error) {
+      errorMsg(error.response.data.message, 1500);
+    }
+  };
+  useEffect(() => {
+    setPublicId(profileData?.user?.image || "");
+  }, [profileData]);
   return (
     <>
-      <h1 className="text-center text-3xl font-semibold sm:mt-6 mt-14 text-gray-600">
+      <h1 className="text-center text-3xl font-semibold sm:mt-10 mt-14 text-gray-600">
         Profile
       </h1>
       <div className="grid sm:grid-cols-2 items-center h-96 p-2  gap-5 grid-cols-1 sm:mt-0 mt-10 text-gray-800">
         <div>
           <div className="relative sm:h-56 sm:w-56 h-48 w-48 rounded-full overflow-hidden mx-auto shadow-lg shadow-black">
-            <Image
-              src={
-                profileData?.user?.image ||
-                "https://img.freepik.com/premium-vector/avatar-profile-icon-flat-style-male-user-profile-vector-illustration-isolated-background-man-profile-sign-business-concept_157943-38764.jpg?semt=ais_hybrid"
-              }
-              className="object-cover "
-              fill
-              alt="profile pic"
-            />
+            {publicId ? (
+              <CldImage
+                src={publicId}
+                alt="profile pic"
+                width={224} // or any size you want
+                height={224}
+                className="w-full h-full object-cover rounded-full"
+              />
+            ) : (
+              <Image
+                src="https://img.freepik.com/premium-vector/avatar-profile-icon-flat-style-male-user-profile-vector-illustration-isolated-background-man-profile-sign-business-concept_157943-38764.jpg?semt=ais_hybrid"
+                alt="default profile"
+                fill
+                className="object-cover"
+              />
+            )}
           </div>
+
           <div className="flex gap-4 mt-10 items-center justify-center">
-            <button className=" flex items-center justify-center px-6 py-2 bg-slate-600 text-white rounded cursor-pointer">
-              Change photo
-            </button>
+            <CldUploadWidget
+              uploadPreset="blogwebapp"
+              onSuccess={({ event, info }) => {
+                if (event === "success") {
+                  setPublicId(info?.public_id);
+                  handleImageUpload(info?.public_id);
+                }
+              }}
+            >
+              {({ open }) => (
+                <button
+                  onClick={() => open()}
+                  className=" flex items-center justify-center px-6 py-2 bg-slate-600 text-white rounded cursor-pointer"
+                >
+                  Change photo
+                </button>
+              )}
+            </CldUploadWidget>
             {update ? (
               <button
                 className=" flex items-center justify-center px-6 py-2 bg-slate-600 text-white rounded cursor-pointer"

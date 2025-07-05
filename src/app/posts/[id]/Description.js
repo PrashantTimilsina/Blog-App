@@ -12,6 +12,7 @@ import { FaBookmark } from "react-icons/fa";
 import axios from "axios";
 import { useData } from "@/context/Context";
 import { errorMsg, successMsg } from "@/utils/toast";
+import { CldImage } from "next-cloudinary";
 
 function Description({ post }) {
   const commentRef = useRef(null);
@@ -29,7 +30,7 @@ function Description({ post }) {
   const [editingIndex, setEditingIndex] = useState(null);
   const [newText, setNewText] = useState("");
   const [likes, setLikes] = useState(post?.likes?.length);
-  const { profileData } = useData();
+  const { profileData, isLoggedIn } = useData();
   const userId = profileData?.user?._id;
   useEffect(() => {
     const liked = post?.likes?.some((data) => data === userId);
@@ -72,6 +73,7 @@ function Description({ post }) {
   }, [showComment]);
 
   const handleLike = async () => {
+    if (!isLoggedIn) return errorMsg("Please login", 1500);
     try {
       const res = await axios.post(`/api/posts/like/${post?._id}`);
       if (res.status === 200) {
@@ -107,6 +109,7 @@ function Description({ post }) {
     isLiked();
   }, [post._id]);
   const handleAddComment = async (e) => {
+    if (!isLoggedIn) return errorMsg("Please login", 1500);
     e.preventDefault();
     try {
       const res = await axios.post(
@@ -165,6 +168,7 @@ function Description({ post }) {
   };
   const handleBookMark = async (e) => {
     e.preventDefault();
+    if (!isLoggedIn) return errorMsg("Please login", 1500);
     try {
       const res = await axios.post(`/api/users/bookmark/${post._id}`, "", {
         withCredentials: true,
@@ -205,12 +209,22 @@ function Description({ post }) {
         </div>
 
         <div className="relative w-full sm:h-80 container mx-auto h-56">
-          <Image
-            src={post?.coverImage}
-            fill
-            alt="Cover Image "
-            className="object-cover"
-          />
+          {post?.coverImage?.startsWith("http") ? (
+            <Image
+              src={post?.coverImage}
+              fill
+              alt="Cover Image "
+              className="object-cover"
+            />
+          ) : (
+            <CldImage
+              src={post?.coverImage}
+              alt="cover image"
+              height={400}
+              width={400}
+              className="object-cover rounded h-full w-full"
+            />
+          )}
         </div>
         <div className="container mx-auto  text-gray-900">
           <p className="sm:text-2xl leading-9 text-justify text-xl sm:p-0 p-2">
@@ -262,7 +276,17 @@ function Description({ post }) {
               className="relative h-8 w-8 rounded-full overflow-hidden "
               key={index}
             >
-              <Image src={data?.image} alt="Liked person image" fill />
+              {data.image.startsWith("http") ? (
+                <Image src={data?.image} alt="Liked person image" fill />
+              ) : (
+                <CldImage
+                  src={data.image}
+                  alt="Liked person image"
+                  className="h-full w-full object-cover "
+                  width={200}
+                  height={200}
+                />
+              )}
             </div>
           ))}
 
@@ -278,12 +302,21 @@ function Description({ post }) {
                 {post?.likes?.map((data, index) => (
                   <div key={index} className="flex gap-3 items-center">
                     <div className="relative overflow-hidden h-8 w-8 rounded-full">
-                      <Image
-                        src={data.image}
-                        alt="Profile pic"
-                        className="object-cover"
-                        fill
-                      />
+                      {data.image.startsWith("http") ? (
+                        <Image
+                          src={data?.image}
+                          alt="Liked person image"
+                          fill
+                        />
+                      ) : (
+                        <CldImage
+                          src={data.image}
+                          alt="Liked person image"
+                          className="h-full w-full object-cover "
+                          width={200}
+                          height={200}
+                        />
+                      )}
                     </div>
                     <h3>{data.name}</h3>
                   </div>
@@ -320,12 +353,21 @@ function Description({ post }) {
                 <div key={index}>
                   <div className="flex items-center gap-4">
                     <div className="relative h-8 w-8 rounded-full overflow-hidden ">
-                      <Image
-                        src={data.user.image}
-                        alt="Profile pic"
-                        fill
-                        className="object-cover"
-                      />
+                      {data.user.image.startsWith("http") ? (
+                        <Image
+                          src={data.user.image}
+                          alt="Liked person image"
+                          fill
+                        />
+                      ) : (
+                        <CldImage
+                          src={data.user.image}
+                          alt="Liked person image"
+                          className="h-full w-full object-cover "
+                          width={200}
+                          height={200}
+                        />
+                      )}
                     </div>
                     <h3 className="text-xl">{data.user.name}</h3>
                   </div>

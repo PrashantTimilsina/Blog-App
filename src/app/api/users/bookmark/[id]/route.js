@@ -1,7 +1,8 @@
+import connect from "@/db/db";
 import User from "@/models/userModel";
 import { getToken } from "@/utils/getToken";
 import { NextResponse } from "next/server";
-
+connect();
 export async function POST(request, { params }) {
   try {
     const userId = await getToken(request);

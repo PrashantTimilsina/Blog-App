@@ -1,12 +1,15 @@
 "use client";
 import { useData } from "@/context/Context";
+import { errorMsg } from "@/utils/toast";
 import axios from "axios";
+import { CldImage } from "next-cloudinary";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 import { useEffect, useRef, useState } from "react";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { IoClose } from "react-icons/io5";
+import { toast } from "react-toastify";
 function Navbar() {
   const router = useRouter();
   const { isLoggedIn, setIsLoggedIn, setProfileData, profileData } = useData();
@@ -86,7 +89,14 @@ function Navbar() {
               Login
             </button>
           )}
-          <button className="btn" onClick={() => router.push("/bookmark")}>
+          <button
+            className="btn"
+            onClick={() => {
+              if (!isLoggedIn)
+                return errorMsg("Please login to access this section", 1500);
+              router.push("/bookmark");
+            }}
+          >
             Bookmarks
           </button>
           {isLoggedIn ? (
@@ -94,17 +104,24 @@ function Navbar() {
               className="btn flex gap-3"
               onClick={() => router.push("/profile")}
             >
-              {profileData?.user?.name}
+              {profileData?.user?.name.split(" ")[0]}
               <div className="relative h-6 w-6 rounded-full overflow-hidden">
-                <Image
-                  src={
-                    profileData?.user?.image ||
-                    "https://img.freepik.com/premium-vector/avatar-profile-icon-flat-style-male-user-profile-vector-illustration-isolated-background-man-profile-sign-business-concept_157943-38764.jpg?semt=ais_hybrid"
-                  }
-                  alt="profile pic"
-                  className="object-cover"
-                  fill
-                />
+                {profileData?.user?.image ? (
+                  <CldImage
+                    src={profileData?.user?.image}
+                    alt="profile pic"
+                    width={224} // or any size you want
+                    height={224}
+                    className="object-cover rounded-full"
+                  />
+                ) : (
+                  <Image
+                    src="https://img.freepik.com/premium-vector/avatar-profile-icon-flat-style-male-user-profile-vector-illustration-isolated-background-man-profile-sign-business-concept_157943-38764.jpg?semt=ais_hybrid"
+                    alt="profile pic"
+                    className="object-cover"
+                    fill
+                  />
+                )}
               </div>
             </button>
           ) : (
@@ -174,6 +191,8 @@ function Navbar() {
           <button
             className="btn w-44"
             onClick={() => {
+              if (!isLoggedIn)
+                return errorMsg("Please login to access this section", 1500);
               router.push("/bookmark");
               setShow(false);
             }}
@@ -188,17 +207,24 @@ function Navbar() {
                 setShow(false);
               }}
             >
-              {profileData?.user?.name}
+              {profileData?.user?.name.split(" ")[0]}
               <div className="relative h-7 w-7 rounded-full overflow-hidden">
-                <Image
-                  src={
-                    profileData?.user?.image ||
-                    "https://img.freepik.com/premium-vector/avatar-profile-icon-flat-style-male-user-profile-vector-illustration-isolated-background-man-profile-sign-business-concept_157943-38764.jpg?semt=ais_hybrid"
-                  }
-                  alt="profile pic"
-                  className="object-cover"
-                  fill
-                />
+                {profileData?.user?.image ? (
+                  <CldImage
+                    src={profileData?.user?.image}
+                    alt="profile pic"
+                    width={224} // or any size you want
+                    height={224}
+                    className="object-cover rounded-full"
+                  />
+                ) : (
+                  <Image
+                    src="https://img.freepik.com/premium-vector/avatar-profile-icon-flat-style-male-user-profile-vector-illustration-isolated-background-man-profile-sign-business-concept_157943-38764.jpg?semt=ais_hybrid"
+                    alt="profile pic"
+                    className="object-cover"
+                    fill
+                  />
+                )}
               </div>
             </button>
           ) : (
