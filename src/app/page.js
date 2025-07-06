@@ -1,7 +1,7 @@
 import BlogCartWrapper from "@/components/BlogData";
 import Hero from "@/components/Hero";
 
-export default function Home() {
+export default async function Home() {
   return (
     <div>
       <Hero />
