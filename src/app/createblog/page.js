@@ -34,7 +34,7 @@ function CreateBlog() {
     <div className="flex flex-col gap-5 items-center justify-center mt-4 sm:w-1/2 mx-auto bg-gray-200 p-4 rounded w-auto">
       <h1 className="sm:text-2xl font-semibold text-xl">Create a blog</h1>
       <form
-        className="flex flex-col gap-5 mt-3 sm:text-xl p-6"
+        className="flex flex-col gap-5 sm:mt-3 sm:text-xl p-6 "
         onSubmit={handleSubmit(onSubmit)}
       >
         <label htmlFor="title">Title*</label>
