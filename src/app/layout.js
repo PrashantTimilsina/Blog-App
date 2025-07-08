@@ -21,6 +21,9 @@ export const metadata = {
   icons: {
     icon: "/blogicon4.png",
   },
+  other: {
+    "color-scheme": "light",
+  },
 };
 
 export default function RootLayout({ children }) {
